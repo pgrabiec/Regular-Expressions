@@ -2,22 +2,25 @@
 ### Usage: <program_file_name> <*.html files directory path>
 #############################################################
 
-import os
-import sys
-import re
 import codecs
+import os
+import re
+import sys
 
+"""
+Changelog:
 
-#############################################################
 # I have configured the code template from the subject site
 # and have declared functions that need to be implemented.
 # I also have finished the first one at the bottom.
 #                                                      ~Piotr
-#############################################################
 
-# TODO
-def extract_department(content):
-    return ''
+# ~WB
+# + added department
+# + modified 'processFile()' to have information more-readable displayed
+# + added 'extract_filename()' to show only 'file-name' without 'folder-name/'
+
+"""
 
 
 # TODO
@@ -55,24 +58,36 @@ def count_integers(content):
     return 0
 
 
-
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
-
     content = fp.read()
-
     fp.close()
-    print("nazwa pliku:", filepath)
-    print("autor:" + str(extract_author(content)))
-    print("dzial:" + str(extract_department(content)))
-    print("slowa kluczowe:" + str(extract_keywords(content)))
-    print("liczba zdan:" + str(count_sentences(content)))
-    print("liczba skrotow:" + str(count_abbreviations(content)))
-    print("liczba liczb calkowitych z zakresu int:" + str(count_integers(content)))
-    print("liczba liczb zmiennoprzecinkowych:" + str(count_float_numbers(content)))
-    print("liczba dat:" + str(count_dates(content)))
-    print("liczba adresow email:" + str(count_emails(content)))
+
+    print("Nazwa pliku: \t" + str(extract_filename(filepath)))
+    print("Autor: \t\t\t" + str(extract_author(content)))
+    print("Dział: \t\t\t" + str(extract_department(content)))
+    print("Słowa kluczowe: " + str(extract_keywords(content)))
+    print("Liczba zdań: \t" + str(count_sentences(content)))
+    print("Liczba skrotów: " + str(count_abbreviations(content)))
+    print("Liczba liczb całkowitych z zakresu int: " + str(count_integers(content)))
+    print("Liczba liczb zmiennoprzecinkowych: \t\t" + str(count_float_numbers(content)))
+    print("Liczba dat: \t\t\t" + str(count_dates(content)))
+    print("Liczba adresów email: \t" + str(count_emails(content)))
     print("\n")
+
+
+################################################
+#               REGEX FUNCTIONS                #
+################################################
+
+# Done - WB
+def extract_filename(filepath):
+    pattern = r'(\/*)(\w*.html)'
+    compiled = re.compile(pattern)
+    result = compiled.search(filepath)
+    filename = result.group(2)
+    return filename
+
 
 # Done - PG
 def extract_author(content):
@@ -83,11 +98,18 @@ def extract_author(content):
     return author
 
 
+# Done - WB
+def extract_department(content):
+    pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
+    compiled = re.compile(pattern)
+    result = compiled.search(content)
+    department = result.group(1)
+    return department
+
 
 ################################################
-### MAIN CODE
+#                   MAIN CODE                  #
 ################################################
-
 
 try:
     path = sys.argv[1]
