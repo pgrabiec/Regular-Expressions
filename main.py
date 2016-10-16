@@ -21,16 +21,15 @@ Changelog:
 # + added 'extract_filename()' to show only 'file-name' without 'folder-name/'
 # + added 'extract_keywords()'
 
+# ~WB v2
+# + added 'count_sentences()' and helpful function 'get_not_meta()'
+# + added 'count_abbreviations()'   |   Warning: in web-browser-checkers count differs, because of polish signs !)
+# + added 'count_emails()'          |   Warning: it's always (!) 0 in example files while range is from <p> to <meta> !!!
 """
 
 
 # TODO
-def count_sentences(content):
-    return 0
-
-
-# TODO
-def count_abbreviations(content):
+def count_integers(content):
     return 0
 
 
@@ -44,16 +43,6 @@ def count_dates(content):
     return 0
 
 
-# TODO
-def count_emails(content):
-    return 0
-
-
-# TODO
-def count_integers(content):
-    return 0
-
-
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
     content = fp.read()
@@ -63,7 +52,6 @@ def processFile(filepath):
     print("Autor: \t\t\t" + str(extract_author(content)))
     print("Dział: \t\t\t" + str(extract_department(content)))
     print("Słowa kluczowe: " + str(extract_keywords(content)))
-    # TODO
     print("Liczba zdań: \t" + str(count_sentences(content)))
     print("Liczba skrotów: " + str(count_abbreviations(content)))
     print("Liczba liczb całkowitych z zakresu int: " + str(count_integers(content)))
@@ -74,8 +62,14 @@ def processFile(filepath):
 
 
 ################################################
-#               REGEX FUNCTIONS                #
+# ------------- REGEX FUNCTIONS -------------- #
 ################################################
+
+
+# +------+
+# | META |
+# +------+
+
 
 # Done - WB
 def extract_filename(filepath):
@@ -113,9 +107,70 @@ def extract_keywords(content):
     return results_as_strings
 
 
+# +----------+
+# | NOT-META |
+# +----------+
+
+
+# Done - WB
+def get_not_meta(content):
+    pattern = r'<[P|p][\s\S]*?<(?:meta|META)'
+    compiled = re.compile(pattern, re.MULTILINE)
+    result = compiled.findall(content)
+    # print(''.join(re.compile(r'<[P|p][\s\S]*?<(?:meta|META)', re.MULTILINE).findall(content)))
+    result_as_list = ''.join(result)
+    # result_as_string = ", ".join(repr(e) for e in result_as_list)
+    return result_as_list
+
+
+# Done - WB
+def count_sentences(content):
+    pattern = r'.*?(?!proc)([a-zA-Z]{4}|\s+|\B\W)((\.|!|\?)+|( )+\n)'
+    compiled = re.compile(pattern, re.MULTILINE)
+
+    my_iter = compiled.finditer(get_not_meta(content))
+    count = 0
+    for _ in my_iter:
+        count += 1
+        # print(element.span(), element.group(0))
+        # print(element.start())
+
+    return count
+
+
+# TODO: they must be different !!! Use Map structure
+# Done - WB
+def count_abbreviations(content):
+    pattern = r'\b([a-zA-Z]{1,3})\.'
+    compiled = re.compile(pattern, re.MULTILINE)
+
+    my_iter = compiled.finditer(get_not_meta(content))
+    count = 0
+    for _ in my_iter:
+        count += 1
+
+    return count
+
+
+# TODO: they must be different !!! Use Map structure
+# Done - WB
+def count_emails(content):
+    # pattern = r'(\b\w+@\w+(\.\w)*\.\w+\b)'
+    pattern = r'[\w+-]+(\.([a-zA-Z0-9])+)*@[\w-]+(\.([a-zA-Z0-9])+)+'
+    compiled = re.compile(pattern, re.MULTILINE)
+
+    my_iter = compiled.finditer(get_not_meta(content))
+    count = 0
+    for _ in my_iter:
+        count += 1
+
+    return count
+
+
 ################################################
-#                   MAIN CODE                  #
+# ----------------- MAIN CODE ---------------- #
 ################################################
+
 
 try:
     path = sys.argv[1]
