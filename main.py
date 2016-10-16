@@ -88,9 +88,11 @@ def extract_filename(filepath):
 
 # Done - PG
 def extract_author(content):
-    pattern = r'<\s*META\s*NAME=\s*"\s*AUTOR\s*"\s*CONTENT\s*=\s*"(.*?)"\s*>'
+    pattern = r'<META\s*NAME\s*=\s*"AUTOR"\s*CONTENT\s*=\s*"(.*?)".*?>'
     compiled = re.compile(pattern)
     results = compiled.search(string=content)
+    if results == None:
+        return ""
     author = results.group(1)
     return author
 
