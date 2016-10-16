@@ -19,13 +19,9 @@ Changelog:
 # + added department
 # + modified 'processFile()' to have information more-readable displayed
 # + added 'extract_filename()' to show only 'file-name' without 'folder-name/'
+# + added 'extract_keywords()'
 
 """
-
-
-# TODO
-def extract_keywords(content):
-    return []
 
 
 # TODO
@@ -67,6 +63,7 @@ def processFile(filepath):
     print("Autor: \t\t\t" + str(extract_author(content)))
     print("Dział: \t\t\t" + str(extract_department(content)))
     print("Słowa kluczowe: " + str(extract_keywords(content)))
+    # TODO
     print("Liczba zdań: \t" + str(count_sentences(content)))
     print("Liczba skrotów: " + str(count_abbreviations(content)))
     print("Liczba liczb całkowitych z zakresu int: " + str(count_integers(content)))
@@ -105,6 +102,15 @@ def extract_department(content):
     result = compiled.search(content)
     department = result.group(1)
     return department
+
+
+# Done - WB
+def extract_keywords(content):
+    pattern = r'\w*<META NAME="KLUCZOWE_\d?" CONTENT="(.*)">'
+    compiled = re.compile(pattern)
+    results_as_list = compiled.findall(content)
+    results_as_strings = ", ".join(repr(e) for e in results_as_list if e != '')
+    return results_as_strings
 
 
 ################################################
