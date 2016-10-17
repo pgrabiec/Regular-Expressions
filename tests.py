@@ -19,6 +19,7 @@ def test(self, list_arg, function):
         result = function(input)
         if result != expected_result:
             print("Expected: " + str(expected_result) + "  computed: " + str(result))
+            print("input: " + input)
         self.failUnless(result == expected_result)
 
 
@@ -38,8 +39,9 @@ class RegExprTests(unittest.TestCase):
     def test_count_integers(self):
         list_arg = [
             ('\n  123 -342 000000000000000000002 0000000000000 -32768 32767', 6),
-            ('\n -32769 327679 1498321478934918 0000000032768 -00000000000032769 4312a a6723 -389a a-89 32e 23.4', 0),
-            ('123', 1)
+            ('\n -327.69 327.679 1498321478934918 0000000032768 -00000000000032769 23.4 33333 -33333', 0),
+            ('123', 1),
+            ('23-40 32+35', 4)
         ]
         test(self, list_arg, model.count_integers)
         pass
@@ -49,6 +51,7 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_count_dates(self):
+        model.count_dates(" 1111-29-02 05.03.2000 ok")
         pass
 
     def test_extract_department(self):
