@@ -25,6 +25,11 @@ Changelog:
 # + added 'count_sentences()' and helpful function 'get_not_meta()'
 # + added 'count_abbreviations()'   |   Warning: in web-browser-checkers count differs, because of polish signs !)
 # + added 'count_emails()'          |   Warning: it's always (!) 0 in example files while range is from <p> to <meta> !!!
+
+# ~WB v3
+# + Corrected functions 'count_abbreviations()' and 'count_emails()'.
+# + Minor changes in displaying information in 'processFile()'
+
 """
 
 
@@ -53,11 +58,11 @@ def processFile(filepath):
     print("Dział: \t\t\t" + str(extract_department(content)))
     print("Słowa kluczowe: " + str(extract_keywords(content)))
     print("Liczba zdań: \t" + str(count_sentences(content)))
-    print("Liczba skrotów: " + str(count_abbreviations(content)))
-    print("Liczba liczb całkowitych z zakresu int: " + str(count_integers(content)))
-    print("Liczba liczb zmiennoprzecinkowych: \t\t" + str(count_float_numbers(content)))
-    print("Liczba dat: \t\t\t" + str(count_dates(content)))
-    print("Liczba adresów email: \t" + str(count_emails(content)))
+    print("Liczba różnych skrotów: \t\t" + str(count_abbreviations(content)))
+    print("Liczba różnych liczb całk. z zakresu int: \t" + str(count_integers(content)))
+    print("Liczba różnych liczb zmiennoprzecinkowych: \t" + str(count_float_numbers(content)))
+    print("Liczba różnych dat: \t\t\t" + str(count_dates(content)))
+    print("Liczba różnych adresów email: \t" + str(count_emails(content)))
     print("\n")
 
 
@@ -125,7 +130,10 @@ def get_not_meta(content):
 
 # Done - WB
 def count_sentences(content):
-    pattern = r'.*?(?!proc)([a-zA-Z]{4}|\s+|\B\W)((\.|!|\?)+|( )+\n)'
+    pattern = r'.*?([a-zA-Z]{4}|\s+|\B\W)((\.|!|\?)+|( )+\n)'
+    # (!) Warning: accepts any 4-letter words like 'proc.'='procent'
+    # Because it's not specified exactly in homework
+
     compiled = re.compile(pattern, re.MULTILINE)
 
     my_iter = compiled.finditer(get_not_meta(content))
@@ -138,33 +146,48 @@ def count_sentences(content):
     return count
 
 
-# TODO: they must be different !!! Use Map structure
 # Done - WB
 def count_abbreviations(content):
     pattern = r'\b([a-zA-Z]{1,3})\.'
+    # (!) Warning: don't accept 'proc.' = 'procent' itp.
+    # Because it's not specified exactly in homework
+
     compiled = re.compile(pattern, re.MULTILINE)
 
     my_iter = compiled.finditer(get_not_meta(content))
-    count = 0
-    for _ in my_iter:
-        count += 1
+    dict = {}
+    for e in my_iter:
+        # print(_a.group(0))
+        if e.group(0) not in dict:
+            dict[e.group(0)] = 1
+        else:
+            dict[e.group(0)] += 1
+    # for key, value in dict.items():
+    #     print(" : " + key, value)
 
-    return count
+    return len(dict)
 
 
-# TODO: they must be different !!! Use Map structure
 # Done - WB
 def count_emails(content):
-    # pattern = r'(\b\w+@\w+(\.\w)*\.\w+\b)'
     pattern = r'[\w+-]+(\.([a-zA-Z0-9])+)*@[\w-]+(\.([a-zA-Z0-9])+)+'
     compiled = re.compile(pattern, re.MULTILINE)
 
     my_iter = compiled.finditer(get_not_meta(content))
-    count = 0
-    for _ in my_iter:
-        count += 1
+    # (!) Warning: in proposed examples it's ALWAYS 0
+    # Because it's not specified exactly in homework
 
-    return count
+    dict = {}
+    for e in my_iter:
+        # print(_a.group(0))
+        if e.group(0) not in dict:
+            dict[e.group(0)] = 1
+        else:
+            dict[e.group(0)] += 1
+    # for key, value in dict.items():
+    #     print(" : " + key, value)
+
+    return len(dict)
 
 
 ################################################
