@@ -39,12 +39,13 @@ class RegExprTests(unittest.TestCase):
         list_arg = [
             ('\n  123 -342 000000000000000000002 0000000000000 -32768 32767', 6),
             ('\n -32769 327679 1498321478934918 0000000032768 -00000000000032769 4312a a6723 -389a a-89 32e 23.4', 0),
-            (' 123 ', 1)
+            ('123', 1)
         ]
         test(self, list_arg, model.count_integers)
         pass
 
     def test_count_float_numbers(self):
+        model.count_float_numbers("1.2 .3 234.5 2e+19 -3.12e-2")
         pass
 
     def test_count_dates(self):
