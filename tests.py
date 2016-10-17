@@ -1,6 +1,6 @@
-# coding=utf-8
 import unittest
 import main as model
+
 
 def test(self, list_arg, function):
     """
@@ -17,7 +17,10 @@ def test(self, list_arg, function):
     for tuple in list_arg:
         input, expected_result = tuple
         result = function(input)
+        if result != expected_result:
+            print("Expected: " + str(expected_result) + "  computed: " + str(result))
         self.failUnless(result == expected_result)
+
 
 class RegExprTests(unittest.TestCase):
     def test_extract_keywords(self):
@@ -33,6 +36,12 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_count_integers(self):
+        list_arg = [
+            ('\n  123 -342 000000000000000000002 0000000000000 -32768 32767', 6),
+            ('\n -32769 327679 1498321478934918 0000000032768 -00000000000032769 4312a a6723 -389a a-89 32e 23.4', 0),
+            (' 123 ', 1)
+        ]
+        test(self, list_arg, model.count_integers)
         pass
 
     def test_count_float_numbers(self):
@@ -46,13 +55,15 @@ class RegExprTests(unittest.TestCase):
 
     def test_extract_author(self):
         list_arg = [(
-                '\n <META NAME = "AUTOR" CONTENT = " Danuta Walewska,Wiesława Mazur">\n',
-                " Danuta Walewska,Wiesława Mazur"
+            '\n <META NAME = "AUTOR" CONTENT = " Danuta Walewska,Wiesława Mazur">\n',
+            " Danuta Walewska,Wiesława Mazur"
         )]
         test(self, list_arg, model.extract_author)
 
+
 def execute():
     unittest.main()
+
 
 if __name__ == '__main__':
     execute()

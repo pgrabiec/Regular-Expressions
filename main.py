@@ -24,34 +24,62 @@ Changelog:
 """
 
 
-# TODO
+# TODO - WB
 def count_sentences(content):
     return 0
 
 
-# TODO
+# TODO - WB
 def count_abbreviations(content):
     return 0
 
 
-# TODO
+# TODO - PG
 def count_float_numbers(content):
-    return 0
+    pattern = r'(?P<x>\d)'
 
 
-# TODO
+# PG
 def count_dates(content):
-    return 0
+    """
+    Counts occurrences of integers between -32768 and 32767 (inclusive) in a given string
+    :param content string to be processed
+    :rtype int
+    """
+    pattern = r'(?<!\S)(?:(?:-0*(?:(?:[1-3][0-9]{3}[0-8])|(?:[1-9][0-9]{,3})))|(?:0*(?:(?:[1-3][0-9]{3}[0-7])|(?:[1-9][0-9]{,3})))|0+)(?!\S)'
+    compiled = re.compile(pattern)
+    results = re.findall(pattern=compiled, string=content)
+    if results is None:
+        return 0
+    results = set(results)
+    length = len(results)
+    if length < 1:
+        return 0
+    return length
 
 
-# TODO
+# TODO - WB
 def count_emails(content):
     return 0
 
 
-# TODO
+# TODO - PG
 def count_integers(content):
-    return 0
+    """
+    Counts occurrences of integers between -32768 and 32767 (inclusive) in a given string
+    :param content string to be processed
+    :rtype int
+    """
+    pattern = r'(?<=\s)(?:(?:-0*(?:(?:[1-3][0-9]{3}[0-8])|(?:[1-9][0-9]{,3})))|(?:0*(?:(?:[1-3][0-9]{3}[0-7])|(?:[1-9][0-9]{,3})))|0+)(?=\s|\Z)'
+    compiled = re.compile(pattern)
+    results = re.findall(pattern=compiled, string=content)
+    if results is None:
+        return 0
+    results = set(results)
+    length = len(results)
+    if length < 1:
+        return 0
+    return length
 
 
 def processFile(filepath):
@@ -91,7 +119,7 @@ def extract_author(content):
     pattern = r'<META\s*NAME\s*=\s*"AUTOR"\s*CONTENT\s*=\s*"(.*?)".*?>'
     compiled = re.compile(pattern)
     results = compiled.search(string=content)
-    if results == None:
+    if results is None:
         return ""
     author = results.group(1)
     return author
