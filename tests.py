@@ -36,7 +36,7 @@ class RegExprTests(unittest.TestCase):
 
     def test_count_sentences(self):
         list_arg = [
-            ('Aaaaa aa aa 12. Aaaa. Aaaaaa12.', 3)
+            ('Aaaaa aa aa 12.8.j.9. Aaaa. Aaaaaa12.', 3)
         ]
         test(self, list_arg, model.count_sentences)
         pass

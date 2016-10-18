@@ -7,25 +7,6 @@ import os
 import re
 import sys
 
-"""
-Changelog:
-# ~WB
-# + added department
-# + modified 'processFile()' to have information more-readable displayed
-# + added 'extract_filename()' to show only 'file-name' without 'folder-name/'
-# + added 'extract_keywords()'
-
-# ~WB v2
-# + added 'count_sentences()' and helpful function 'get_not_meta()'
-# + added 'count_abbreviations()'   |   Warning: in web-browser-checkers count differs, because of polish signs !)
-# + added 'count_emails()'          |   Warning: it's always (!) 0 in example files while range is from <p> to <meta> !!!
-
-# ~WB v3
-# + Corrected functions 'count_abbreviations()' and 'count_emails()'.
-# + Minor changes in displaying information in 'processFile()'
-"""
-
-
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
     content = fp.read()
@@ -53,7 +34,50 @@ def processFile(filepath):
 # ------------- REGEX FUNCTIONS -------------- #
 ################################################
 
-# PG
+# +------+
+# | META |
+# +------+
+
+def extract_filename(filepath):
+    pattern = r'(\/*)(\w*.html)'
+    compiled = re.compile(pattern)
+    result = compiled.search(filepath)
+    filename = result.group(2)
+    return filename
+
+
+def extract_author(content):
+    pattern = r'<META\s*NAME\s*=\s*"AUTOR"\s*CONTENT\s*=\s*"(.*?)".*?>'
+    compiled = re.compile(pattern)
+    results = compiled.search(string=content)
+    if results is None:
+        return ""
+    author = results.group(1)
+    if author is None:
+        return ""
+    return author
+
+
+def extract_department(content):
+    pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
+    compiled = re.compile(pattern)
+    result = compiled.search(content)
+    department = result.group(1)
+    return department
+
+
+def extract_keywords(content):
+    pattern = r'\w*<META NAME="KLUCZOWE_\d?" CONTENT="(.*)">'
+    compiled = re.compile(pattern)
+    results_as_list = compiled.findall(content)
+    results_as_strings = ", ".join(repr(e) for e in results_as_list if e != '')
+    return results_as_strings
+
+
+# +----------+
+# | NOT-META |
+# +----------+
+
 def count_dates(content):
     """
     + Finds number of unique dates of the formats:
@@ -154,7 +178,6 @@ def count_dates(content):
     return len(unique_dates)
 
 
-# PG
 def count_float_numbers(content):
     pattern = r'(?<!\d)[+-]?(?:\d+[.]\d*|[.]\d+)(?:e[+-]?\d+)?(?!\d)'
     compiled = re.compile(pattern)
@@ -168,7 +191,6 @@ def count_float_numbers(content):
     return length
 
 
-# PG
 def count_integers(content):
     """
     Counts occurrences of integers between -32768 and 32767 (inclusive) in a given string
@@ -187,73 +209,19 @@ def count_integers(content):
     return length
 
 
-# +------+
-# | META |
-# +------+
-
-# WB
-def extract_filename(filepath):
-    pattern = r'(\/*)(\w*.html)'
-    compiled = re.compile(pattern)
-    result = compiled.search(filepath)
-    filename = result.group(2)
-    return filename
-
-
-# PG
-def extract_author(content):
-    pattern = r'<META\s*NAME\s*=\s*"AUTOR"\s*CONTENT\s*=\s*"(.*?)".*?>'
-    compiled = re.compile(pattern)
-    results = compiled.search(string=content)
-    if results is None:
-        return ""
-    author = results.group(1)
-    if author is None:
-        return ""
-    return author
-
-
-# WB
-def extract_department(content):
-    pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
-    compiled = re.compile(pattern)
-    result = compiled.search(content)
-    department = result.group(1)
-    return department
-
-
-# WB
-def extract_keywords(content):
-    pattern = r'\w*<META NAME="KLUCZOWE_\d?" CONTENT="(.*)">'
-    compiled = re.compile(pattern)
-    results_as_list = compiled.findall(content)
-    results_as_strings = ", ".join(repr(e) for e in results_as_list if e != '')
-    return results_as_strings
-
-
-# +----------+
-# | NOT-META |
-# +----------+
-
-# WB
 def get_not_meta(content):
     pattern = r'<[P|p][\s\S]*?<(?:meta|META)'
     compiled = re.compile(pattern, re.MULTILINE)
     result = compiled.findall(content)
     # print(''.join(re.compile(r'<[P|p][\s\S]*?<(?:meta|META)', re.MULTILINE).findall(content)))
     result_as_list = ''.join(result)
-    # result_as_string = ", ".join(repr(e) for e in result_as_list)
+
     return result_as_list
 
 
-# WB
 def count_sentences(content):
-    pattern = r'.*?([a-zA-Z]{4}|\s+|\B\W)((\.|!|\?)+|( )+\n)'
-    # (!) Warning: accepts any 4-letter words like 'proc.'='procent'
-    # Because it's not specified exactly in homework
-
+    pattern = r'.*?(\w{4}|\d|\s+|\B\W)((\.|!|\?)+(\s|$))'
     compiled = re.compile(pattern, re.MULTILINE)
-
     my_iter = compiled.finditer(content)
     count = 0
     for _ in my_iter:
@@ -263,11 +231,8 @@ def count_sentences(content):
     return count
 
 
-# WB
 def count_abbreviations(content):
     pattern = r'\b([a-zA-Z]{1,3})\.'
-    # (!) Warning: don't accept 'proc.' = 'procent' itp.
-    # Because it's not specified exactly in homework
 
     compiled = re.compile(pattern, re.MULTILINE)
 
@@ -284,14 +249,11 @@ def count_abbreviations(content):
     return len(dict)
 
 
-# WB
 def count_emails(content):
     pattern = r'[\w+-]+(\.([a-zA-Z0-9])+)*@[\w-]+(\.([a-zA-Z0-9])+)+'
     compiled = re.compile(pattern, re.MULTILINE)
 
     my_iter = compiled.finditer(content)
-    # (!) Warning: in proposed examples it's ALWAYS 0
-    # Because it's not specified exactly in homework
 
     dict = {}
     for e in my_iter:
