@@ -14,12 +14,12 @@ def test(self, list_arg, function):
                taking a single string as the only parameter
     Fails the test unless the function evaluations for all inputs are equal to their expected values
     """
-    for tuple in list_arg:
-        input, expected_result = tuple
-        result = function(input)
+    for subject in list_arg:
+        input_string, expected_result = subject
+        result = function(input_string)
         if result != expected_result:
             print("Expected: " + str(expected_result) + "  computed: " + str(result))
-            print("input: " + input)
+            print("input: " + input_string)
         self.failUnless(result == expected_result)
 
 
@@ -47,11 +47,19 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_count_float_numbers(self):
-        model.count_float_numbers("1.2 .3 234.5 2e+19 -3.12e-2")
+        list_arg = [
+            ('a-3.2e-2a 1.2 .3 234.52 s-3.12e-2.\n.8,', 6),
+            (' 1e10 2e+10 4e-32 ', 0)
+        ]
+        test(self, list_arg, model.count_float_numbers)
         pass
 
     def test_count_dates(self):
-        model.count_dates("05-03-2009 88-03-2003 12.32.1442 13/03/1995")
+        list_arg = [
+            (r'05-03-2009a w13/03/1995d 29.02.1111 2222-21-10 ', 4),
+            (r' 00-00-0000 02-00-1111 00-32-2222 234-55-2345 88-03-2003 ', 0)
+        ]
+        test(self, list_arg, model.count_dates)
         pass
 
     def test_extract_department(self):

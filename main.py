@@ -25,6 +25,7 @@ Changelog:
 # + Minor changes in displaying information in 'processFile()'
 """
 
+
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
     content = fp.read()
@@ -41,6 +42,7 @@ def processFile(filepath):
     print("Liczba różnych dat: \t\t\t" + str(count_dates(content)))
     print("Liczba różnych adresów email: \t" + str(count_emails(content)))
     print("\n")
+
 
 ################################################
 # ------------- REGEX FUNCTIONS -------------- #
@@ -59,33 +61,98 @@ def count_dates(content):
     :param content string to be processed
     :rtype int
     """
-    pattern = r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02]))[.]\d{4})|'  # 31 days
-    pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02]))[/]\d{4})|'  # 31 days
-    pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[-](?:(?:0[13578])|(?:1[02]))[-]\d{4})|'  # 31 days
-    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11))[-]\d{4})|'  # 30 days
-    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11))[.]\d{4})|'  # 30 days
-    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11))[/]\d{4})|'  # 30 days
-    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[.](?:(?:02))[.]\d{4})|'  # 29 days
-    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[/](?:(?:02))[/]\d{4})|'  # 29 days
-    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[-](?:(?:02))[-]\d{4})|'  # 29 days
-    pattern += r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:3[0-1]))[-](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    pattern += r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    pattern += r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    pattern += r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11)))|'  # 30 days
-    pattern += r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11)))|'  # 30 days
-    pattern += r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11)))|'  # 30 days
-    pattern += r'(?:\d{4}[-](?:(?:[0-1][0-9])|(?:2[0-9]))[-](?:(?:02)))|'  # 29 days
-    pattern += r'(?:\d{4}[/](?:(?:[0-1][0-9])|(?:2[0-9]))[/](?:(?:02)))|'  # 29 days
-    pattern += r'(?:\d{4}[.](?:(?:[0-1][0-9])|(?:2[0-9]))[.](?:(?:02)))'  # 29 days
+    separators = ['.', '/', '-']
+    months_length_spec = [
+        (31, [
+            (0, [1, 3, 5, 7, 8]),
+            (1, [0, 2])
+        ]),
+        (30, [
+            (0, [4, 6, 9]),
+            (1, [1])
+        ]),
+        (29, [
+            (0, [2])
+        ])
+    ]
+    # Separator RegEx
+    separator_regex = r'['
+    for sep in separators:
+        separator_regex += sep
+    separator_regex += r']'
+    # Pattern assembly
+    separate = False
+    pattern = r'(?<!\d)'
+    counter = 2
+    for months_spec in months_length_spec:
+        day_reg, month_reg, year_reg = '', '', r'\d{4}'
+        days, months_list = months_spec
+
+        # Day RegEx
+        day_reg += r'[0-' + \
+                   str(max(days // 10 - 1, 0)) + \
+                   r']\d' + \
+                   r'|' + \
+                   str(days // 10) + \
+                   r'[0-' + \
+                   str(days % 10) + \
+                   r']'
+        # Month RegEx
+        insert_pipe = False
+        for month_ten in months_list:
+            ten_digit, one_digits_list = month_ten
+            if insert_pipe:
+                month_reg += r'|'
+            else:
+                insert_pipe = True
+            month_reg += str(ten_digit) + r'['
+            for one_digit in one_digits_list:
+                month_reg += str(one_digit)
+            month_reg += r']'
+        # Include results in the pattern
+        if separate:
+            pattern += r'|'
+        else:
+            separate = True
+        pattern += r'(' + day_reg + r')(' + separator_regex + r')(' + month_reg + ')\\' + str(
+            counter) + r'(' + year_reg + r')|'
+        counter += 4  # Updating number to reference appropriate group number of separator RegEx
+        pattern += r'(' + year_reg + r')(' + separator_regex + ')(' + day_reg + ')\\' + str(
+            counter) + r'(' + month_reg + ')'
+        counter += 4
+    pattern += r'(?!\d)'
+
     compiled = re.compile(pattern=pattern)
     results = re.findall(pattern=compiled, string=content)
-    # print(results)
-    # TODO - finding unique dates set size
-    return 0
+    if results is None:
+        return 0
+    if results == []:
+        return 0
+
+    # Find unique dates
+    # results is a list e.g. [('', '', '1016', '-', '29', '03', '', ...), (), ...]
+    unique_dates = set()
+    for result_tuple in results:
+        result_list = list(result_tuple)
+        i = 0
+        while i < len(result_list):
+            data = result_list[i]
+            length = len(data)
+            if length > 0:
+                if length == 2:
+                    unique_dates.add(data + result_list[i + 2] + result_list[i + 3])
+                    break
+                if length == 4:
+                    unique_dates.add(result_list[i + 2] + result_list[i + 3] + data)
+                    break
+            i += 1
+    print(unique_dates)
+    return len(unique_dates)
+
 
 # PG
 def count_float_numbers(content):
-    pattern = r'(?<!\w)[+-]?(?:(?:\d+[.]\d*)|(?:[.]\d+)|(?:\d+[.]\d+[e][+-]?\d+)|(?:\d+[e][+-]?\d+))(?!\w)'
+    pattern = r'(?<!\d)[+-]?(?:\d+[.]\d*|[.]\d+)(?:e[+-]?\d+)?(?!\d)'
     compiled = re.compile(pattern)
     results = re.findall(pattern=compiled, string=content)
     if results is None:
@@ -95,6 +162,7 @@ def count_float_numbers(content):
     if length < 1:
         return 0
     return length
+
 
 # PG
 def count_integers(content):
@@ -114,6 +182,7 @@ def count_integers(content):
         return 0
     return length
 
+
 # +------+
 # | META |
 # +------+
@@ -125,6 +194,7 @@ def extract_filename(filepath):
     result = compiled.search(filepath)
     filename = result.group(2)
     return filename
+
 
 # PG
 def extract_author(content):
@@ -138,6 +208,7 @@ def extract_author(content):
         return ""
     return author
 
+
 # WB
 def extract_department(content):
     pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
@@ -146,6 +217,7 @@ def extract_department(content):
     department = result.group(1)
     return department
 
+
 # WB
 def extract_keywords(content):
     pattern = r'\w*<META NAME="KLUCZOWE_\d?" CONTENT="(.*)">'
@@ -153,6 +225,7 @@ def extract_keywords(content):
     results_as_list = compiled.findall(content)
     results_as_strings = ", ".join(repr(e) for e in results_as_list if e != '')
     return results_as_strings
+
 
 # +----------+
 # | NOT-META |
