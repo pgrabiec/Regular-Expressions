@@ -51,7 +51,7 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_count_dates(self):
-        model.count_dates(" 1111-29-02 05.03.2000 ok")
+        model.count_dates("05-03-2009 88-03-2003 12.32.1442 13/03/1995")
         pass
 
     def test_extract_department(self):

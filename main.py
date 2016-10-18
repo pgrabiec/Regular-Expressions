@@ -25,7 +25,6 @@ Changelog:
 # + Minor changes in displaying information in 'processFile()'
 """
 
-
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
     content = fp.read()
@@ -43,7 +42,6 @@ def processFile(filepath):
     print("Liczba różnych adresów email: \t" + str(count_emails(content)))
     print("\n")
 
-
 ################################################
 # ------------- REGEX FUNCTIONS -------------- #
 ################################################
@@ -51,12 +49,15 @@ def processFile(filepath):
 # PG
 def count_dates(content):
     """
+    + Finds number of unique dates of the formats:
     + dd-mm-yyyy
     + dd/mm/yyyy
     + dd.mm.yyyy
     + yyyy-dd-mm
     + yyyy/dd/mm
     + yyyy.dd.mm
+    :param content string to be processed
+    :rtype int
     """
     pattern = r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02]))[.]\d{4})|'  # 31 days
     pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02]))[/]\d{4})|'  # 31 days
@@ -82,7 +83,6 @@ def count_dates(content):
     # TODO - finding unique dates set size
     return 0
 
-
 # PG
 def count_float_numbers(content):
     pattern = r'(?<!\w)[+-]?(?:(?:\d+[.]\d*)|(?:[.]\d+)|(?:\d+[.]\d+[e][+-]?\d+)|(?:\d+[e][+-]?\d+))(?!\w)'
@@ -95,7 +95,6 @@ def count_float_numbers(content):
     if length < 1:
         return 0
     return length
-
 
 # PG
 def count_integers(content):
@@ -115,7 +114,6 @@ def count_integers(content):
         return 0
     return length
 
-
 # +------+
 # | META |
 # +------+
@@ -127,7 +125,6 @@ def extract_filename(filepath):
     result = compiled.search(filepath)
     filename = result.group(2)
     return filename
-
 
 # PG
 def extract_author(content):
@@ -141,7 +138,6 @@ def extract_author(content):
         return ""
     return author
 
-
 # WB
 def extract_department(content):
     pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
@@ -149,7 +145,6 @@ def extract_department(content):
     result = compiled.search(content)
     department = result.group(1)
     return department
-
 
 # WB
 def extract_keywords(content):
@@ -159,11 +154,9 @@ def extract_keywords(content):
     results_as_strings = ", ".join(repr(e) for e in results_as_list if e != '')
     return results_as_strings
 
-
 # +----------+
 # | NOT-META |
 # +----------+
-
 
 # WB
 def get_not_meta(content):
