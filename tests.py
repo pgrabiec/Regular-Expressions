@@ -25,18 +25,34 @@ def test(self, list_arg, function):
 
 class RegExprTests(unittest.TestCase):
     def test_extract_keywords(self):
+        list_arg = [
+            ('<META NAME="KLUCZOWE_1" CONTENT="aaa">'
+             '\n<META NAME="KLUCZOWE_2" CONTENT="ccc">'
+             '\n<META NAME="KLUCZOWE_3" CONTENT="sss">',
+             '\'aaa\', \'ccc\', \'sss\'')
+        ]
+        test(self, list_arg, model.extract_keywords)
         pass
 
     def test_count_sentences(self):
+        list_arg = [
+            ('Aaaaa aa aa 12. Aaaa. Aaaaaa12.', 3)
+        ]
+        test(self, list_arg, model.count_sentences)
         pass
 
     def test_count_abbreviations(self):
+        list_arg = [
+            ('etc. s. dsa.', 3),
+            ('aaaa. ccccc. .', 0)
+        ]
+        test(self, list_arg, model.count_abbreviations)
         pass
 
     def test_count_emails(self):
         list_arg = [
             ('a1@a.a.a.com a1@a.a a@a.a', 3),
-            (' 1a@a.a a@a..a a.a@a.a  ', 0)
+            (' a@a..a ', 0)
         ]
         test(self, list_arg, model.count_emails)
         pass
@@ -68,6 +84,10 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_extract_department(self):
+        list_arg = [
+            (r'<META NAME="DZIAL" CONTENT="gazeta/Sport">', 'Sport')
+        ]
+        test(self, list_arg, model.extract_department)
         pass
 
     def test_extract_author(self):

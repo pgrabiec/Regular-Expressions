@@ -31,16 +31,21 @@ def processFile(filepath):
     content = fp.read()
     fp.close()
 
+    not_meta_content = get_not_meta(content)
+
+    # File name
     print("Nazwa pliku: \t" + str(extract_filename(filepath)))
+    # META info
     print("Autor: \t\t\t" + str(extract_author(content)))
     print("Dział: \t\t\t" + str(extract_department(content)))
     print("Słowa kluczowe: " + str(extract_keywords(content)))
-    print("Liczba zdań: \t" + str(count_sentences(content)))
-    print("Liczba różnych skrotów: \t\t" + str(count_abbreviations(content)))
-    print("Liczba różnych liczb całk. z zakresu int: \t" + str(count_integers(content)))
-    print("Liczba różnych liczb zmiennoprzecinkowych: \t" + str(count_float_numbers(content)))
-    print("Liczba różnych dat: \t\t\t" + str(count_dates(content)))
-    print("Liczba różnych adresów email: \t" + str(count_emails(content)))
+    # Paragraphs content (not META)
+    print("Liczba zdań: \t" + str(count_sentences(not_meta_content)))
+    print("Liczba różnych skrotów: \t\t" + str(count_abbreviations(not_meta_content)))
+    print("Liczba różnych liczb całk. z zakresu int: \t" + str(count_integers(not_meta_content)))
+    print("Liczba różnych liczb zmiennoprzecinkowych: \t" + str(count_float_numbers(not_meta_content)))
+    print("Liczba różnych dat: \t\t\t" + str(count_dates(not_meta_content)))
+    print("Liczba różnych adresów email: \t" + str(count_emails(not_meta_content)))
     print("\n")
 
 
@@ -249,7 +254,7 @@ def count_sentences(content):
 
     compiled = re.compile(pattern, re.MULTILINE)
 
-    my_iter = compiled.finditer(get_not_meta(content))
+    my_iter = compiled.finditer(content)
     count = 0
     for _ in my_iter:
         count += 1
@@ -266,7 +271,7 @@ def count_abbreviations(content):
 
     compiled = re.compile(pattern, re.MULTILINE)
 
-    my_iter = compiled.finditer(get_not_meta(content))
+    my_iter = compiled.finditer(content)
     dict = {}
     for e in my_iter:
         # print(_a.group(0))
@@ -284,7 +289,7 @@ def count_emails(content):
     pattern = r'[\w+-]+(\.([a-zA-Z0-9])+)*@[\w-]+(\.([a-zA-Z0-9])+)+'
     compiled = re.compile(pattern, re.MULTILINE)
 
-    my_iter = compiled.finditer(get_not_meta(content))
+    my_iter = compiled.finditer(content)
     # (!) Warning: in proposed examples it's ALWAYS 0
     # Because it's not specified exactly in homework
 
