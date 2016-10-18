@@ -34,6 +34,11 @@ class RegExprTests(unittest.TestCase):
         pass
 
     def test_count_emails(self):
+        list_arg = [
+            ('a1@a.a.a.com a1@a.a a@a.a', 3),
+            (' 1a@a.a a@a..a a.a@a.a  ', 0)
+        ]
+        test(self, list_arg, model.count_emails)
         pass
 
     def test_count_integers(self):

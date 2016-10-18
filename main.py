@@ -146,7 +146,6 @@ def count_dates(content):
                     unique_dates.add(result_list[i + 2] + result_list[i + 3] + data)
                     break
             i += 1
-    print(unique_dates)
     return len(unique_dates)
 
 
