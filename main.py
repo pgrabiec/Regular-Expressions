@@ -7,54 +7,46 @@ import os
 import re
 import sys
 
-"""
-Changelog:
 
-# I have configured the code template from the subject site
-# and have declared functions that need to be implemented.
-# I also have finished the first one at the bottom.
-#                                                      ~Piotr
-
-# ~WB
-# + added department
-# + modified 'processFile()' to have information more-readable displayed
-# + added 'extract_filename()' to show only 'file-name' without 'folder-name/'
-# + added 'extract_keywords()'
-
-"""
-
-# TODO - PG
 def count_dates(content):
     """
-    + dd-mm-rrrr
-	+ dd/mm/rrrr
-	+ dd.mm.rrrr
-	+ rrrr-dd-mm
-	+ rrrr/dd/mm
-    + rrrr.dd.mm
+    Finds number of unique dates of the formats:
+    + dd-mm-yyyy
+	+ dd/mm/yyyy
+	+ dd.mm.yyyy
+	+ yyyy-dd-mm
+	+ yyyy/dd/mm
+    + yyyy.dd.mm
+    :param content string to be processed
+    :rtype int
     """
-    pattern = r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02]))[.]\d{4})|'  # 31 days
-    r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02]))[/]\d{4})|'  # 31 days
-    r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[-](?:(?:0[13578])|(?:1[02]))[-]\d{4})|'  # 31 days
-    r'(?:(?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11))[-]\d{4})|'  # 30 days
-    r'(?:(?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11))[.]\d{4})|'  # 30 days
-    r'(?:(?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11))[/]\d{4})|'  # 30 days
-    r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[.](?:(?:02))[.]\d{4})|'  # 29 days
-    r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[/](?:(?:02))[/]\d{4})|'  # 29 days
-    r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[-](?:(?:02))[-]\d{4})|'  # 29 days
-    r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:3[0-1]))[-](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02])))|'  # 31 days
-    r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11)))|'  # 30 days
-    r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11)))|'  # 30 days
-    r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11)))|'  # 30 days
-    r'(?:\d{4}[-](?:(?:[0-1][0-9])|(?:2[0-9]))[-](?:(?:02)))|'  # 29 days
-    r'(?:\d{4}[/](?:(?:[0-1][0-9])|(?:2[0-9]))[/](?:(?:02)))|'  # 29 days
-    r'(?:\d{4}[.](?:(?:[0-1][0-9])|(?:2[0-9]))[.](?:(?:02)))'  # 29 days
+    pattern = r'(?<!\d)'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02]))[.]\d{4})|'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02]))[.]\d{4})|'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02]))[/]\d{4})|'
+    pattern += r'(?:(?:(?:[0-2]\d)|(?:3[0-1]))-(?:(?:0[13578])|(?:1[02]))-\d{4})|'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11))[-]\d{4})|'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11))[.]\d{4})|'
+    pattern += r'(?:(?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11))[/]\d{4})|'
+    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[.](?:(?:02))[.]\d{4})|'
+    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[/](?:(?:02))[/]\d{4})|'
+    pattern += r'(?:(?:(?:[0-1][0-9])|(?:2[1-9]))[-](?:(?:02))[-]\d{4})|'
+    pattern += r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:3[0-1]))[-](?:(?:0[13578])|(?:1[02])))|'
+    pattern += r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:3[0-1]))[/](?:(?:0[13578])|(?:1[02])))|'
+    pattern += r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:3[0-1]))[.](?:(?:0[13578])|(?:1[02])))|'
+    pattern += r'(?:\d{4}[-](?:(?:[0-2][0-9])|(?:30))[-](?:(?:0[469])|(?:11)))|'
+    pattern += r'(?:\d{4}[.](?:(?:[0-2][0-9])|(?:30))[.](?:(?:0[469])|(?:11)))|'
+    pattern += r'(?:\d{4}[/](?:(?:[0-2][0-9])|(?:30))[/](?:(?:0[469])|(?:11)))|'
+    pattern += r'(?:\d{4}[-](?:(?:[0-1][0-9])|(?:2[0-9]))[-](?:(?:02)))|'
+    pattern += r'(?:\d{4}[/](?:(?:[0-1][0-9])|(?:2[0-9]))[/](?:(?:02)))|'
+    pattern += r'(?:\d{4}[.](?:(?:[0-1][0-9])|(?:2[0-9]))[.](?:(?:02)))'
+    pattern += r'(?!\d)'
     compiled = re.compile(pattern=pattern)
     results = re.findall(pattern=compiled, string=content)
-    print(results)
-    return set(results)
+    results = set(results)
+
+    return results
+
 
 def processFile(filepath):
     fp = codecs.open(filepath, 'rU', 'iso-8859-2')
@@ -63,15 +55,15 @@ def processFile(filepath):
 
     print("Nazwa pliku: \t" + str(extract_filename(filepath)))
     print("Autor: \t\t\t" + str(extract_author(content)))
-    print("Dział: \t\t\t" + str(extract_department(content)))
-    print("Słowa kluczowe: " + str(extract_keywords(content)))
+    print("Dzial: \t\t\t" + str(extract_department(content)))
+    print("Slowa kluczowe: " + str(extract_keywords(content)))
     # TODO
-    print("Liczba zdań: \t" + str(count_sentences(content)))
-    print("Liczba skrotów: " + str(count_abbreviations(content)))
-    print("Liczba liczb całkowitych z zakresu int: " + str(count_integers(content)))
+    print("Liczba zdan: \t" + str(count_sentences(content)))
+    print("Liczba skrotow: " + str(count_abbreviations(content)))
+    print("Liczba liczb calkowitych z zakresu int: " + str(count_integers(content)))
     print("Liczba liczb zmiennoprzecinkowych: \t\t" + str(count_float_numbers(content)))
     print("Liczba dat: \t\t\t" + str(count_dates(content)))
-    print("Liczba adresów email: \t" + str(count_emails(content)))
+    print("Liczba adresow email: \t" + str(count_emails(content)))
     print("\n")
 
 
@@ -79,15 +71,14 @@ def processFile(filepath):
 #               REGEX FUNCTIONS                #
 ################################################
 
-# TODO - WB
 def count_sentences(content):
     return 0
 
-# TODO - WB
+
 def count_abbreviations(content):
     return 0
 
-# Done - PG
+
 def count_float_numbers(content):
     pattern = r'(?<!\w)[+-]?(?:(?:\d+[.]\d*)|(?:[.]\d+)|(?:\d+[.]\d+[e][+-]?\d+)|(?:\d+[e][+-]?\d+))(?!\w)'
     compiled = re.compile(pattern)
@@ -100,7 +91,7 @@ def count_float_numbers(content):
         return 0
     return length
 
-# Done - PG
+
 def count_integers(content):
     """
     Counts occurrences of integers between -32768 and 32767 (inclusive) in a given string
@@ -118,11 +109,11 @@ def count_integers(content):
         return 0
     return length
 
-# TODO - WB
+
 def count_emails(content):
     return 0
 
-# Done - WB
+
 def extract_filename(filepath):
     pattern = r'(\/*)(\w*.html)'
     compiled = re.compile(pattern)
@@ -131,7 +122,6 @@ def extract_filename(filepath):
     return filename
 
 
-# Done - PG
 def extract_author(content):
     pattern = r'<META\s*NAME\s*=\s*"AUTOR"\s*CONTENT\s*=\s*"(.*?)".*?>'
     compiled = re.compile(pattern)
@@ -144,7 +134,6 @@ def extract_author(content):
     return author
 
 
-# Done - WB
 def extract_department(content):
     pattern = r'\w*<META NAME="DZIAL" CONTENT="\w*\/(.*?)">'
     compiled = re.compile(pattern)
@@ -153,7 +142,6 @@ def extract_department(content):
     return department
 
 
-# Done - WB
 def extract_keywords(content):
     pattern = r'\w*<META NAME="KLUCZOWE_\d?" CONTENT="(.*)">'
     compiled = re.compile(pattern)
